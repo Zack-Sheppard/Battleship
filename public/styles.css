@@ -1,0 +1,61 @@
+
+header {
+    text-align: center;
+}
+
+.game {
+    margin: 20px;
+}
+
+.game-board {
+    display: inline-block;
+    margin: 20px;
+}
+
+.square {
+    background: #fff;
+    border: 2px solid #999;
+    float: left;
+    font-size: 27px;
+    font-weight: bold;
+    line-height: 42px;
+    height: 42px;
+    /*
+    margin-right: -1px;
+    margin-top: -1px;
+    */
+    padding: 0;
+    text-align: center;
+    width: 42px;
+}
+
+#water {
+    color: blue;
+}
+
+#ship {
+    color: red;
+}
+
+#I1 {
+    color: red;
+}
+
+#I2 {
+    color: darkorange;
+}
+
+#O1 {
+    color: green;
+}
+
+#L1 {
+    color: brown;
+}
+
+/* what is :after? */
+.board-row:after {
+    clear: both;
+    content: "";
+    display: table;
+}
