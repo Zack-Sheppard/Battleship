@@ -23,11 +23,28 @@ var size = 8;
 var rows = size;
 var cols = size;
 ;
+// enum for gameViews: lobby, inGame, victory
+// for now just string
+var defaultScene = {
+    view: "lobby",
+    p0Turn: true,
+    boards: [
+        [[], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], []]
+    ]
+};
 ;
 var Game = /** @class */ (function (_super) {
     __extends(Game, _super);
     function Game(props) {
         var _this = _super.call(this, props) || this;
+        _this.populateShips = function (board) {
+            // add const ship names, or something better
+            _this.addShip(board, new ship_1.Ship_I("I1"));
+            _this.addShip(board, new ship_1.Ship_I("I2"));
+            _this.addShip(board, new ship_1.Ship_O("O1"));
+            _this.addShip(board, new ship_1.Ship_L("L1"));
+        };
         // Randomly adds ship to board
         _this.addShip = function (board, ship) {
             var overlappingShip = true;
@@ -40,7 +57,7 @@ var Game = /** @class */ (function (_super) {
                 // check
                 for (var i = 0; i < ship.height; i++) {
                     for (var j = 0; j < ship.width; j++) {
-                        if (board[x + i][y + j] !== "water") {
+                        if (board[y + i][x + j] !== "water") {
                             overlappingShip = true;
                         }
                     }
@@ -50,67 +67,124 @@ var Game = /** @class */ (function (_super) {
             for (var i = 0; i < ship.height; i++) {
                 for (var j = 0; j < ship.width; j++) {
                     if (ship.space[i][j]) {
-                        // this only throws error for 0-3
-                        board[x + i][y + j] = ship.name;
+                        board[y + i][x + j] = ship.name;
                     }
                 }
             }
         };
-        _this.populateShips = function (board) {
-            _this.addShip(board, new ship_1.Ship_I("I1"));
-            _this.addShip(board, new ship_1.Ship_I("I2"));
-            _this.addShip(board, new ship_1.Ship_O("O1"));
-            _this.addShip(board, new ship_1.Ship_L("L1"));
+        if (props.scene.view == "lobby") {
+            // rebuild board if loaded from lobby view
+            _this.resetBoards(props.scene);
+            props.setScene(props.scene);
+        }
+        _this.state = {
+            message: "Welcome to Battleship!"
         };
-        _this.resetBoards();
         return _this;
     }
-    Game.prototype.updateGameState = function (gs) {
-        this.props.update(gs);
-    };
-    Game.prototype.resetBoards = function () {
-        // fill boards with "water" first
-        var arr1 = new Array(cols).fill(null);
-        for (var i = 0; i < cols; i++) {
-            arr1[i] = new Array(rows).fill("water");
-        }
-        var arr2 = new Array(cols).fill(null);
-        for (var i = 0; i < cols; i++) {
-            arr2[i] = new Array(rows).fill("water");
-        }
-        this.state = {
-            board1: arr1,
-            board2: arr2,
-            p1Turn: true
+    Game.prototype.getScene = function () {
+        var scene = {
+            view: this.props.scene.view,
+            p0Turn: this.props.scene.p0Turn,
+            boards: [this.props.scene.boards[0], this.props.scene.boards[1]]
         };
-        this.populateShips = this.populateShips.bind(this);
-        this.populateShips(this.state.board1);
-        this.populateShips(this.state.board2);
+        return scene;
     };
-    // renderBoard(player) {}
-    // calculateWinner() {}
+    //setScene(s: Scene) is a built in Game property
+    Game.prototype.updateScene = function (params) {
+        // todo
+    };
+    // pass in scene, sets two new boards in that scene
+    Game.prototype.resetBoards = function (curr) {
+        var p0_board = [[], [], [], [], [], [], [], []];
+        var p1_board = [[], [], [], [], [], [], [], []];
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < size; j++) {
+                p0_board[i][j] = "water";
+                p1_board[i][j] = "water";
+            }
+        }
+        this.populateShips(p0_board);
+        this.populateShips(p1_board);
+        curr.boards = [p0_board, p1_board];
+    };
+    Game.prototype.checkWinner = function (board) {
+        var win = true;
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < cols; j++) {
+                if (board[i][j] != "water" &&
+                    board[i][j] != "miss" &&
+                    board[i][j] != "hit") {
+                    win = false;
+                }
+            }
+        }
+        // return something
+    };
+    Game.prototype.buttonToggle = function () {
+        var curr = this.getScene();
+        if (curr.view == "lobby") {
+            curr.view = "game";
+        }
+        else {
+            localStorage.clear();
+            this.resetBoards(curr);
+            curr.view = "lobby";
+            curr.p0Turn = true;
+        }
+        this.props.setScene(curr);
+    };
+    Game.prototype.switchTurn = function (curr) {
+        curr.p0Turn = !curr.p0Turn;
+        this.props.setScene(curr);
+    };
+    Game.prototype.updateBoard = function (curr, bNum, i, j) {
+        var sq = curr.boards[bNum][i][j];
+        var val = "";
+        if (sq == "hit" || sq == "miss") {
+            val = sq;
+        }
+        // turn changes here:
+        else {
+            this.switchTurn(curr);
+            if (sq == "water") {
+                val = "miss";
+            }
+            else {
+                val = "hit";
+            }
+        }
+        curr.boards[bNum][i][j] = val;
+    };
+    Game.prototype.handleClick = function (boardNumber, i, j) {
+        var curr = this.getScene();
+        // update board more like update game/scene hehe
+        this.updateBoard(curr, boardNumber, i, j);
+        // check if ship sunk
+        // get val from checkWinner
+        this.checkWinner(curr.boards[boardNumber]);
+        this.props.setScene(curr);
+    };
+    //renderBoards() // (there are two)
     Game.prototype.render = function () {
         var _this = this;
-        if (this.props.message == "lobby") {
-            this.resetBoards();
-        }
-        var b1 = this.state.board1;
-        var b2 = this.state.board2;
+        // Render current scene
+        var curr = this.getScene();
         return (React.createElement("div", { className: "game" },
-            React.createElement(board_1.default, { message: this.props.message, player: 0, squares: b1 }),
-            React.createElement(board_1.default, { message: this.props.message, player: 1, squares: b2 }),
+            React.createElement("div", { className: "boards", id: curr.view },
+                React.createElement(board_1.default, { turn: !curr.p0Turn, onClick: function (i, j) { return _this.handleClick(0, i, j); }, squares: curr.boards[0] }),
+                React.createElement(board_1.default, { turn: curr.p0Turn, onClick: function (i, j) { return _this.handleClick(1, i, j); }, squares: curr.boards[1] })),
             React.createElement("div", { className: "game-info" },
-                React.createElement("div", null),
+                React.createElement("div", null, this.state.message),
                 React.createElement("ol", null)),
             React.createElement("div", null,
-                React.createElement("button", { onClick: function () { return _this.updateGameState("game"); } }, "Start"),
-                React.createElement("button", { onClick: function () { return _this.updateGameState("lobby"); } }, "Restart?"))));
+                React.createElement("button", { onClick: function () { return _this.buttonToggle(); } }, curr.view == "lobby" ? "Start" : "Restart"))));
     };
     return Game;
 }(React.Component));
 function App() {
-    var _a = preserve_state_1.default("game", "lobby"), game = _a[0], setGame = _a[1];
-    return (React.createElement(Game, { message: game, update: setGame }));
+    var _a = preserve_state_1.default("game", defaultScene), scene = _a[0], setScene = _a[1];
+    return (React.createElement(Game, { scene: scene, setScene: setScene }));
 }
 exports.default = App;
 //# sourceMappingURL=app.js.map

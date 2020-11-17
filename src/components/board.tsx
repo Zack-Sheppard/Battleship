@@ -6,9 +6,9 @@ const size: number = 8;
 const rows: number = size;
 const cols: number = size;
 
-interface MyProps {
-    message: string;
-    player: number;
+interface BoardProps {
+    turn: boolean;
+    onClick: any;
     squares: Array<Array<string>>;
 };
 
@@ -16,7 +16,7 @@ interface BoardState {
     s: any;
 };
 
-export default class Board extends React.Component<MyProps, BoardState> {
+export default class Board extends React.Component<BoardProps, BoardState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -24,22 +24,14 @@ export default class Board extends React.Component<MyProps, BoardState> {
         };
     }
 
-    renderSquare(i, j) {
-        const square_id = {
-            player: this.props.player,
-            x: i,
-            y: j
-        }
-
-        let gameInProgress = true;
-        if(this.props.message == "lobby") {
-            gameInProgress = false;
-        }
+    renderSquare(i: number, j: number) {
         return (
             <Square
-                gameInProgress={gameInProgress}
-                id={square_id}
-                type={this.props.squares[i][j]}
+                value={this.props.squares[i][j]}
+                onClick={() => {if(this.props.turn) {
+                                    this.props.onClick(i, j);
+                                }
+                }}
             />
         );
     }
@@ -53,16 +45,14 @@ export default class Board extends React.Component<MyProps, BoardState> {
     }
 
     render() {
-        // board to view
-        const board = new Array(size);
-        for(let i = 0; i < cols; i++) {
-            let row = new Array(size);
-            for(let j = 0; j < rows; j++) {
+        const board = new Array<any>(size);
+        for(let i = 0; i < rows; i++) {
+            let row = new Array<any>(size);
+            for(let j = 0; j < cols; j++) {
                 row[j] = this.renderSquare(i, j);
             }
             board[i] = this.renderRow(row);
         }
-
         return (
             <div className="game-board">
                 {board}

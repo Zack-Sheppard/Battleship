@@ -4,12 +4,33 @@ header {
 }
 
 .game {
-    margin: 20px;
+    margin: auto;
+    width: 95%;
+}
+
+.boards {
+    margin: auto;
+    display: block;
+    width: 95%;
 }
 
 .game-board {
     display: inline-block;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.game-info {
     margin: 20px;
+    text-align: center;
+}
+
+.button {
+    text-align: center;
+}
+
+#lobby.boards {
+    visibility: hidden;
 }
 
 .square {
@@ -33,11 +54,19 @@ header {
     color: blue;
 }
 
+#miss {
+    color: blue;
+}
+
 #ship {
     color: red;
 }
 
 #I1 {
+    color: red;
+}
+
+#hit {
     color: red;
 }
 

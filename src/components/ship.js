@@ -64,6 +64,7 @@ var Ship_L = /** @class */ (function (_super) {
         _this.or = randInt(1);
         _this.space = [
             // first 2 rows cond'n
+            // not necessarily!!!!
             [1, 0],
             [1, 0],
             [1, 1],

@@ -1,19 +1,35 @@
 
 import * as React from 'react';
-import PreserveState from "../preserve_state";
+
+enum square {
+    water = 0,
+    ship,
+}
+
+// hold on this
+export class SquareSpace {
+    marked: boolean;
+    type: square;
+
+    getMark() {
+        if(this.marked) {
+
+        }
+    }
+}
 
 export function Square(props) {
-    let [val, setVal] = ['', (s: string) => {}];
-    if(props.gameInProgress) {
-        const key = JSON.stringify(props.id);
-        [val, setVal] = PreserveState(key, '');
-    }
-    else {
-        localStorage.clear();
+    let mark = "";
+    if(props.value == "hit" || props.value == "miss") {
+        mark = "X";
     }
     return (
-        <button className="square" id={props.type} onClick={() => setVal('X')}>
-            {val}
+        <button 
+            className="square"
+            id={props.value}
+            onClick={() => props.onClick()}
+        >
+            {mark}
         </button>
     );
 }

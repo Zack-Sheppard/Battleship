@@ -65,6 +65,7 @@ export class Ship_L extends Ship {
         this.or = randInt(1);
         this.space = [
             // first 2 rows cond'n
+            // not necessarily!!!!
             [1, 0],
             [1, 0],
             [1, 1],

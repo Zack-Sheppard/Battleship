@@ -30,26 +30,21 @@ var Board = /** @class */ (function (_super) {
         return _this;
     }
     Board.prototype.renderSquare = function (i, j) {
-        var square_id = {
-            player: this.props.player,
-            x: i,
-            y: j
-        };
-        var gameInProgress = true;
-        if (this.props.message == "lobby") {
-            gameInProgress = false;
-        }
-        return (React.createElement(square_1.Square, { gameInProgress: gameInProgress, id: square_id, type: this.props.squares[i][j] }));
+        var _this = this;
+        return (React.createElement(square_1.Square, { value: this.props.squares[i][j], onClick: function () {
+                if (_this.props.turn) {
+                    _this.props.onClick(i, j);
+                }
+            } }));
     };
     Board.prototype.renderRow = function (row) {
         return (React.createElement("div", { className: "board-row" }, row));
     };
     Board.prototype.render = function () {
-        // board to view
         var board = new Array(size);
-        for (var i = 0; i < cols; i++) {
+        for (var i = 0; i < rows; i++) {
             var row = new Array(size);
-            for (var j = 0; j < rows; j++) {
+            for (var j = 0; j < cols; j++) {
                 row[j] = this.renderSquare(i, j);
             }
             board[i] = this.renderRow(row);
